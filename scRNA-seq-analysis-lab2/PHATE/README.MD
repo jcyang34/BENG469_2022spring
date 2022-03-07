@@ -1,1 +1,3 @@
+{{ badge }}
+
 For class demonstration
