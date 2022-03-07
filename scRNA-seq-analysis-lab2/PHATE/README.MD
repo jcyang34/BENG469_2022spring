@@ -1,4 +1,4 @@
-[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jakevdp/PythonDataScienceHandbook/blob/master/notebooks/Index.ipynb)
+[![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/jcyang34/BENG469_2022spring/blob/main/PHATE.ipynb)
 
 
 For class demonstration
