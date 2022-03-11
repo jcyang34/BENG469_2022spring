@@ -1,0 +1,395 @@
+---
+title: "pbmc_tutorial"
+output: html_document
+date: '2022-03-05'
+---
+# Modified from https://satijalab.org/seurat/articles/pbmc3k_tutorial.html
+
+In this lab session, we will be going over some basic steps of scRNA-seq analysis using the standard Peripheral Blood Mononuclear Cells (PBMC) dataset freely available from 10X Genomics. There are 2,700 single cells that were sequenced on the Illumina NextSeq 500.
+
+# Install the packages
+
+```{r}
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("Seurat")) install.packages("Seurat")
+if (!require("patchwork")) install.packages("patchwork")
+```
+
+# Load the pacakges
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(Seurat)
+library(patchwork)
+```
+
+Then let's load the dataset, the function we use here is this Read10x function. Just a recap, one way we can get to know what one particular R function is about is to type a question mark in front of the function name then hit return, and we can see that this document page will pop out on the right.
+
+So here we can see the description of this Read10x function, so it says it enables the easy loading ... and the first parameter of this function is the directory containing ... In our case, the data are under this folder, if we go to this folder, we can these 3 files from 10x.
+
+# Load the data
+
+```{r}
+# Load the PBMC dataset
+pbmc.data <- Read10X(data.dir = "./filtered_gene_bc_matrices/hg19/")
+```
+
+and you can see on the right that is pbmc.data is loaded as a large matrix. So this is the count matrix we saw in the slide, where the rows are genes and columns are cells.
+
+Let's take a look at this matrix. Here, we only take these 3 genes and the first 10 columns or 10 cells. 
+
+```{r}
+pbmc.data[c("CD3D", "TCL1A", "MS4A1"),1:10]
+```
+We can see these count values in the matrix, we also see these dots in some of the entries. We've seen them before, but does anyone know what these dots represent? You can type your answer in the chat box.
+
+Yes, these dots represent 0s, and this representation is called sparse matrix representation where only the information of the non-0 values is stored.
+
+Let's do a simple computation, here we'll count the number of 0s in the matrix and divide it by the number of entries. This will give the percentage of 0s or the sparsity of the matrix.
+
+```{r}
+sum(pbmc.data == 0) /(ncol(pbmc.data) * nrow(pbmc.data))
+```
+We can see that about 97% of the entries are 0s. Actually most of the scRNA-seq count matrices are sparse, and the reason to this sparsity is complicated. Some of the zeros are due to low sequencing depth. Some zeros could be systematic, like mRNA degradations during cell lysis. Some of zeros are real biological fluctuations (some genes are just not being expressed by some cells).  
+
+In any case, because of this distinctive feature, using sparse matrix representation could be much more memory efficient. For example, currently we can see that this matrix is about 30 MB. Let's see what happens if we convert it to a standard matrix representation.
+ 
+```{r}
+tmp <- as.matrix(pbmc.data)
+```
+
+For some bigger datasets it would be more costly. In the Seurat package, this sparse matrix representation is also used to be efficient.
+
+```{r}
+rm(tmp)
+```
+
+
+# Create the Seurat object
+
+ Let's first create a seurat object. We've seen this function in the scATAC analysis. Basically we can pass a count matrix to the function and it creates this seurat object. Here we also do some pre-filtering by removing genes that are expressed less than 3 cells and removing cells that express less than 200 genes.
+
+```{r}
+# Initialize the Seurat object with the raw (non-normalized data).
+pbmc <- CreateSeuratObject(counts = pbmc.data, project = "pbmc3k", min.cells = 3, min.features = 200)
+pbmc
+```
+You can see on the right, we created pbmc seurat object. Just as a recap, let's look at the structure of this object. In the assays we have this RNA assay which stores this count data and some other useful data slots. We can also store other single cell data modalities inside, for example, in the last lab session, we created a peak assay for the scATAC-seq data to store peak counts. 
+
+We also have the meta data information here. For example, nCount_RNA is the total counts of mRNAs for each cell, nFeature_RNA is the total number of genes that are expressed  for each cell. 
+
+And some other useful information, for example, graphs and neighbors store the information after clustering, reductions store the information after dm.
+
+# QC (Quality Control) of the cells
+
+The next step we will go over is Quality control of the cells. QC is an important preprocessing step. For example, for these droplet-based technologies, we can have a droplet that has more than one cell captured in which case we may have a very high number of expressed genes detected, we may also have droplets that captured low-quality cells or no cell at all, in this case we may have a very low number of expressed genes detected. For outliers like these, we can filter them based on the number of the expressed genes or the number of mRNAs. 
+These two metrics are already present in the metadata.
+
+we may encounter cells that low quality or are dying which will exhibit extensive mitochondrial contamination, or in other words, mitochondrial genes are highly expressed. For this case, we can filter the cells based on the percentage of mRNAs that are mapped to the mitochodrial genes. If the percentage is really high for one cell, we might want to filter this cell out.
+
+To compute this percentage, we can use the following function. the percentage of mRNAs that are mapped to the mitochodrial genes, and save this as a metadata to the seurat object
+
+```{r}
+# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
+pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
+```
+
+
+We can visualize these 3 metrics:the number of the expressed genes or the number of mRNAs, the percentage of mRNAs that are mapped to the mitochodrial genes,  altogether using this vliolin plot function.
+
+So each point in one panel is a cell, and each y axis shows the values of the corresponding metric. We can see that some cells that look like outliers in each panel.
+
+```{r}
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+Here, in this example, we will filter out cells that have the number of expressed genes over 2,500 or less than 200, have >5% mitochondrial counts. 
+
+Here we didn't filter the cells based on the number of mRNA counts because it often stronly correlates with the number of expressed genes. So filter based on the number of expressed genes may do the work. Also, for the thresholds we use here, they might be different in other datasets. For example, cells inside some systems may all express in a very high level, we might want to adjust the thresholds accordingly.
+
+```{r}
+pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
+```
+
+Let's look again at these violin plots after filtering. We can see now that the distributions are less skewed and less outliers are present.
+
+```{r}
+VlnPlot(pbmc, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
+```
+
+
+# Data Normalization
+
+Next step is Data Normalization. We want to remove the library size difference between cells.
+
+The most widely used normalization method in scRNA-seq is log normalization, or log1p. What it does is to normalize the feature expression measurements for each cell by the total library size, multiplies this by a scale factor (10,000 by default), then + 1, then take the log to scale it.
+
+```{r}
+pbmc <- NormalizeData(pbmc, normalization.method = "LogNormalize", scale.factor = 10000)
+```
+This normalized data is stored in this data slot here (Seurat). 
+
+# Highly variable gene selection
+
+Next, We will try to find a subset of features that exhibit high cell-to-cell variation in the dataset . They claim that focusing on these genes in downstream analysis helps to highlight biological signal in single-cell datasets. For example, some marker genes of some cell types are highly expressed in some cells but lowly expressed in others. In this case they will exhibit high variance across cells.
+
+Here, we will find the top 2000 variable genes using this FindVariableFeatures function
+
+```{r}
+pbmc <- FindVariableFeatures(pbmc, nfeatures = 2000)
+```
+We can see the top variable genes
+
+```{r}
+# Identify the 10 most highly variable genes
+top10 <- head(VariableFeatures(pbmc), 10)
+top10
+```
+Some of these genes are indeed cell type marker genes, for example, LYZ is a marker for CD14 monocytes, GNLY is marker gene for Natural Killer cells.
+
+
+We can also visualize these variable genes using this VariableFeaturePlot function.
+
+In this scatter plot, each point is a gene. The xaxis is the mean expression of the genes, the y axis is the variance. The red color indicates that these are variable. The black color indicates the non-variable genes. These are the top 10 genes we just saw.
+
+```{r}
+# plot variable features with and without labels
+plot1 <- VariableFeaturePlot(pbmc)
+plot2 <- LabelPoints(plot = plot1, points = top10, repel = TRUE)
+plot2
+```
+
+# Data scaling of the genes
+
+Next is the data scaling of the genes.This is a standard pre-processing step prior to dimensional reduction techniques like PCA. It scales the expression of each gene such that the mean expersion value across cells is 0 and the variance across cells is 1. 
+
+The results of this are stored in pbmc[["RNA"]]@scale.data
+
+```{r}
+all.genes <- rownames(pbmc)
+pbmc <- ScaleData(pbmc, features = all.genes)
+```
+
+
+# Linear Dimensional reduction: PCA (maybe briefly review pca?)
+
+Next let's talk about Principle Component Analysis or PCA. Let me use the following toy example to briefly explain. Suppose the picture on the left is our data where each point is a cell, and they are inside this high dimentional gene space. Here as illustration I only draw two axis, gene 1 and gene 2, but we also other axis, gene 3, gene 4, etc. 
+
+What PCA does is that it tries to find a few directions or a few new axis that are most variable in the dataset, these new axis are so called principle components or PCs. For example, here in this toy example, the arrow shows the first PC, that explains the largest variance in the data, the second PC, the blue arrow, explains the second largest variance in the data, the third pc, the third largest, so on so forth.
+
+One can project the data onto these PCs to get dimension reduced data. Previously, our data has more than thousands or tens of thousands of genes or features. Now the number of features is the number of PCs we decide to keep, for example, 10, 20, 50, that explains the most variance in the data.
+
+This dimensional reduction will be useful for some downsteam tasks (e.g. clustering, UMAP). Instead of using all the genes, we can take top k pcs as input as a pre-filter to remove some noise, and to also alleviate some computational burden
+
+Also, PCA can provide some preliminary insights of the data, we can visualize the data in the pc space and we'll see it in a second.
+
+
+
+```{r}
+knitr::include_graphics(c('./img/PCA.png'))
+```
+
+
+
+Let's run PCA using this runPCA function from Seurat. By default, only the previously determined variable features are used as input, but can be defined using features argument if you wish to choose a different subset. Also, by default, it computes the first 50 pcs.
+
+```{r}
+pbmc <- RunPCA(pbmc, features = VariableFeatures(object = pbmc))
+```
+
+We can see from the output it says for each pc, what are the genes that are the genes that positively correlated with this pca, what the are the negatively correlated ones.
+
+(left singular vectors, by default multiplied by the singular values)
+
+We can visualize these correlations or the contributions of the genes to each pc by running the following function. Here, we only visualize the first 2 pcs. The y axis indicates each gene, and x axis shows their correlation or the contribution to each pc. (Here only the top genes are shown).
+
+```{r}
+VizDimLoadings(pbmc, dims = 1:2, reduction = "pca")
+```
+
+Like I said, we can also use pca as a preliminary visualization tool. Here we can visualize the cells on the first 2 pcs. We can already see some loose structure. For example, here you can see one cluster, maybe this is one cell type.
+
+```{r}
+DimPlot(pbmc, reduction = "pca")
+```
+
+One question for the downstream analysis is how many pcs need to keep. There are some algorithms or techniques that can give an explicit number but here we'll use a simpler approach called elbowplot, it plots the variance explained by each pc. Here is shows the standard deviation, the square root of the variance. We can see that the pc_1 explains the most variance, then pc_2, the variance drops gradually with more pcs, and it almost converged after 5-10. Here, as a demonstration, we'll just keep the first 10 pcs.
+
+
+```{r}
+ElbowPlot(pbmc)
+```
+
+
+
+# Clustering using Louvain
+
+This is the step we've seen for a few times in the scATAC-seq analysis. So we will go through this very briefly, first we will use this find neighbors function to construct a nearest neighbor graph. Then we will run the clustering algorithm to assign cluster labels.
+
+
+```{r}
+pbmc <- FindNeighbors(pbmc, dims = 1:10)
+pbmc <- FindClusters(pbmc, resolution = 0.5)
+```
+
+# Nonlinear Dimensional Reduction 
+
+```{r}
+# If you haven't installed UMAP, you can do so via reticulate::py_install(packages =
+# 'umap-learn')
+pbmc <- RunUMAP(pbmc, dims = 1:10)
+```
+Visualize the cells using umap
+
+```{r}
+# note that you can set `label = TRUE` or use the LabelClusters function to help label
+# individual clusters
+DimPlot(pbmc, reduction = "umap")
+```
+
+There is the other often-used dm method called TSNE. One can also run TSNE using this RunTSNE function. Both methods aim to make the cells that are similar in the high dimensional space close in the low dimensional space, and push dissimilar points away. There is this discussion on which method is preferred. Some argue that UMAP is preferred because it can better preserve the so called global structure and it runs faster than TSNE. This is only true if you use the RunTSNE function with the default implementation in Seurat. However, if you use the newer implementation, UMAP is no longer that advantageous. Here, as a convention, we'll just keep using UMAP.
+
+```{r}
+?RunTSNE()
+```
+
+we can also compare it to the pca visualization.
+
+```{r}
+DimPlot(pbmc, reduction = "pca")
+```
+
+
+Some additional features of DimPlot
+
+```{r}
+DimPlot(pbmc, reduction = "umap",label = T)
+```
+```{r}
+DimPlot(pbmc, reduction = "umap",label=T,cells = colnames(pbmc)[Idents(pbmc) %in% c(0,2,4,6)])
+```
+
+```{r}
+# change the colors
+DimPlot(pbmc, reduction = "umap",label = T,cols="Paired")
+```
+ggplot functions can also be added
+
+```{r}
+DimPlot(pbmc, reduction = "umap",label = T) + 
+  ggtitle("PBMC Louvain clustering, resolution 0.5") + 
+  theme(legend.position = "bottom")
+```
+
+# Differential Gene Expression analysis
+
+The last topic we'll be exploring today is Differential Gene Expression analysis, which is to discover what are the genes that are differentially expressed between groups. The group labels can be different time points in the cell developmental process,  or different disease conditions. In today's example, the group labels will be the cell cluster labels, and we'll find out what the genes are differentially expressed between one cluster from the other.
+
+
+The main function we'll use today is this FindMarkers() function from Seurat. In the following example, let's say we want to find what genes are differentially expressed in cluster 2 compared to the rest of cells. So here ident.1 is the first group of cells, which is cluster 2, if we don't provide ident.2, by default it will treat the rest of cells as group 2. Also, here in stead of finding markers from the list of all the genes, we limit this list of genes only to be the genes that are expressed more than 25% within each group, and the genes that have average log fold change large than 0.25 between the 2 groups.
+
+(this will take 10s)
+
+```{r}
+# find all markers of cluster 2
+cluster2.markers <- FindMarkers(pbmc, ident.1 = 2, min.pct = 0.25,logfc.threshold = 0.25)
+```
+
+Ok, let's take a look at the first few markers
+
+(Talk about the columns in the results (p_val, avg_log2FC, p_val_adj, etc.))
+
+```{r}
+head(cluster2.markers, n = 5)
+```
+
+
+Next, let's say we want to find out what are the genes that distinguish cluster 5 from clusters 0 and 3. We'll sepcify ident.2 
+
+```{r}
+# 
+cluster5.markers <- FindMarkers(pbmc, ident.1 = 5, ident.2 = c(0, 3), min.pct = 0.25,logfc.threshold = 0.25)
+head(cluster5.markers, n = 5)
+```
+
+We can also find markers for every cluster compared to all remaining cells altogether, the function we'll be using is FindAllMarkers. Here, we also give it a only.pos = TRUE flag to report only the positive markers.
+
+(This will take 1 min, ask questions)
+
+```{r}
+# ask questions here
+pbmc.markers <- FindAllMarkers(pbmc, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+
+```
+Let's look at these markers, so here we only look at the top 2 markers for each cluster
+
+```{r}
+pbmc.markers %>%
+    group_by(cluster) %>%
+    slice_max(n = 2, order_by = avg_log2FC)
+```
+
+
+By default we are using wilcoxon rank sum test to do DEG. wilcoxon rank sum test is the mostly used test in single-cell rna-seq studies. but there are a lot of alternative methods. We won't go into details of each method, we can check the description of these method. for example, here we can use roc analysis, which classifies the cell groups using each gene and one can rank these genes based on how well each gene classifes the cell groups.
+
+(not run)
+
+```{r}
+cluster0.markers <- FindMarkers(pbmc, ident.1 = 0, logfc.threshold = 0.25, test.use = "roc", only.pos = TRUE)
+```
+
+
+After we identify these DEGs, we can use different plotting functions from Seurat to visualize their expression levels. For example, we can use violin plots to plot the expression levels of one gene across different clusters
+
+```{r}
+VlnPlot(pbmc, features = c("MS4A1", "CD79A"))
+```
+
+
+We can use FeaturePlot which we've seen this before, to plot the expression values on top the 2D visualization plot like UMAP
+
+```{r}
+FeaturePlot(pbmc, features = c("MS4A1", "GNLY", "CD3E", "CD14", "FCER1A", "FCGR3A", "LYZ", "PPBP",
+    "CD8A"))
+```
+
+Also, we can visualize the distributions of the gene expression levels using RidgePlot
+
+```{r}
+RidgePlot(pbmc,features = c("MS4A1", "GNLY", "CD3E"))
+```
+
+The last visualization is to use heatmap
+
+```{r}
+# I could talk a bit more about these filters in the heatmap
+# for the heatmap, I can talk a bit more about the color palette
+pbmc.markers %>%
+    group_by(cluster) %>%
+    top_n(n = 5, wt = avg_log2FC) -> top10
+DoHeatmap(pbmc, features = top10$gene) + NoLegend()
+```
+
+
+# Assign cell types based on markers
+
+So let's say we find the markers for each cluster. Finally we can assign cell types based on these markers. Here in this tutorial we already this prior knowledge of which marker is associated with which cell types. For other datasets people may need to search some database or ask for experts on which cell type is associated with cell markers.
+
+```{r}
+knitr::include_graphics(c('./img/markers.PNG'))
+```
+
+
+```{r}
+new.cluster.ids <- c("Naive CD4 T", "CD14+ Mono", "Memory CD4 T", "B", "CD8 T", "FCGR3A+ Mono",
+    "NK", "DC", "Platelet")
+names(new.cluster.ids) <- levels(pbmc)
+pbmc <- RenameIdents(pbmc, new.cluster.ids)
+DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
+```
+```{r}
+DotPlot(pbmc, features = c("PPBP","FCER1A","CST3", "GNLY","NKG7","FCGR3A","MS4A7",  "CD8A" ,"MS4A1","IL7R", "S100A4", "CD14", "LYZ","CCR7")) + RotatedAxis()
+```
+
