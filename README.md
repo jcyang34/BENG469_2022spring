@@ -10,6 +10,12 @@ Using PBMC 3k dataset to demonstrate:
 * Differential Gene Expression Analysis
 
 
+
+
+
 ### Single-cell RNA-seq analysis lab 2
+
+* Trajectory Analysis
+*  PHATE visulization 
 
 
