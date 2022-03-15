@@ -15,7 +15,7 @@
    
 3. Request computation resources
    
-   **Make sure to specify Number of CPU cores per node to be 1** 
+   Specify the resources as shown below (you can leave other optional boxes blank), then click **Launch**
    
    ![plot](./imgs/request_resources.png)
    
