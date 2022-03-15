@@ -7,6 +7,7 @@
    
    Go to ```beng469.ycrc.yale.edu``` in your web browser (make sure that you are on Yale Network or Yale VPN). You will see the following window once you logged in.
    
+   ![plot](./imgs/login_window.png)
    
 2. Click open **RStudio Destop (with Module R)**
 
