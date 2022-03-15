@@ -23,7 +23,7 @@
 
 4. Lauch Rstudio Desktop
    
-   Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**. Ideally you will see a new window popint out, that's the virtual machine interface with Rstudio launching inside.
+   Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**. Ideally you will see a new window poping out, that's the virtual machine interface with Rstudio launching inside.
    
    ![plot](./imgs/queue.png)
    
@@ -32,3 +32,9 @@
    ![plot](./imgs/running.png)
 
    ![plot](./imgs/rstudio.png)
+   
+5. Open the Monocle 2 and Monocle 3 RMD files inside Rstudio
+
+   Inside Rstudio, click the ellipsis icon in the file navigating panel at the bottom right.
+   
+    ![plot](./imgs/file_panel.png)
