@@ -20,3 +20,9 @@
    ![plot](./imgs/request_resources.png)
    
    ![plot](./imgs/request_resources_2.png)
+
+4. Lauch Rstudio Desktop
+   
+   Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**
+   
+   
