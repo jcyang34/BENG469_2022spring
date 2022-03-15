@@ -25,4 +25,8 @@
    
    Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**
    
+   ![plot](./imgs/queue.png)
    
+   ![plot](./imgs/starting.png)
+   
+   ![plot](./imgs/running.png)
