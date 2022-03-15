@@ -1,4 +1,4 @@
-## Trajectory analysis using Monocle 2 and Monocle 3
+## PART1: Trajectory analysis using Monocle 2 and Monocle 3
 
 #### Environment Setup:
 
@@ -45,6 +45,6 @@ to the directory where  *Trajectory_monocle2.Rmd* and  *Trajectory_monocle3.Rmd*
 
 
 ---
-## PHATE visualization
+## PART2: PHATE visualization
 
 #### Environment setup
