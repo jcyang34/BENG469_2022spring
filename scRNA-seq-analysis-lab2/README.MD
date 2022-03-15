@@ -43,3 +43,9 @@ to the directory where  *Trajectory_monocle2.Rmd* and  *Trajectory_monocle3.Rmd*
    ![plot](./Monocle/imgs/opendir.png)
    
    ![plot](./Monocle/imgs/confirmation.png)
+
+
+
+## PHATE visualization
+---
+#### Environment setup
