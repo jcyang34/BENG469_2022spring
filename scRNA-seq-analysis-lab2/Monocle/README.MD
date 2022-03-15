@@ -15,6 +15,7 @@
    
 3. Request computation resources
    
+   **Make sure to specify Number of CPU cores per node to be 1** 
    
-  ![plot](./imgs/request_resources.png)
+   ![plot](./imgs/request_resources.png)
    
