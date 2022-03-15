@@ -11,3 +11,4 @@
    
 2. Click open **RStudio Destop (with Module R)**
 
+   ![plot](./imgs/login_window2.png)
