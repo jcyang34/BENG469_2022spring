@@ -36,7 +36,7 @@
 5. Open the Monocle 2 and Monocle 3 RMD files inside Rstudio
 
    Inside Rstudio, click the ellipsis icon in the file navigating panel at the bottom right. In the "Go To Folder" window that pops out, paste the following destination to the "Directory" box: ```/gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq2/Trajectory analysis/Monocle/```, then click "Open". This will lead you
-to the directory where * *Trajectory_monocle2.RMD* * and * *Trajectory_monocle3.RMD* * are located. You can click these files to open them.
+to the directory where  *Trajectory_monocle2.Rmd* and  *Trajectory_monocle3.Rmd*  are located. You can click these files to open them.
 
    ![plot](./imgs/file_panel.png)
 
