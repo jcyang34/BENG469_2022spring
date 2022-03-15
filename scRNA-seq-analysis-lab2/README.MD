@@ -1,6 +1,5 @@
 ## Trajectory analysis using Monocle 2 and Monocle 3
 
----
 #### Environment Setup:
 
 1. Open Farnam OnDemand:
@@ -45,7 +44,7 @@ to the directory where  *Trajectory_monocle2.Rmd* and  *Trajectory_monocle3.Rmd*
    ![plot](./Monocle/imgs/confirmation.png)
 
 
-
-## PHATE visualization
 ---
+## PHATE visualization
+
 #### Environment setup
