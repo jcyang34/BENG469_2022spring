@@ -23,10 +23,12 @@
 
 4. Lauch Rstudio Desktop
    
-   Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**
+   Wait for a few seconds until you see your requested session is running, then click **Launch RStudio Desktop (with Module R)**. Ideally you will see a new window popint out, that's the virtual machine interface with Rstudio launching inside.
    
    ![plot](./imgs/queue.png)
    
    ![plot](./imgs/starting.png)
    
    ![plot](./imgs/running.png)
+
+   ![plot](./imgs/rstudio.png)
