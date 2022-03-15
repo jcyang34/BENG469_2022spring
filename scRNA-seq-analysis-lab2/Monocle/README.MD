@@ -12,3 +12,9 @@
 2. Click open **RStudio Destop (with Module R)**
 
    ![plot](./imgs/login_window2.png)
+   
+3. Request computation resources
+   
+   
+  ![plot](./imgs/request_resources.png)
+   
