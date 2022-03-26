@@ -1,6 +1,7 @@
-# Run CellPhoneDB on the Vento-Tormo 2018 data
+### Run CellPhoneDB on the Vento-Tormo 2018 data
 
 ***
+##### Login 
 
 1. Login to HPC via ssh
 
@@ -23,19 +24,22 @@ cd project
 mkdir scRNA-seq-lab3 && cd scRNA-seq-lab3
 ```
 
-4. Create a python virtual environment 
+***
+##### Install CellPhoneDB
+
+5. Create a python virtual environment 
 
 ```
 python -m venv cpdb
 ```
 
-5. Activate the python virtual environment
+6. Activate the python virtual environment
 
 ```
 source cpdb/bin/activate
 ```
 
-6. Install CellPhonedb
+7. Install CellPhonedb
 
 ```
 pip install cellphonedb --use-feature=2020-resolver
@@ -43,8 +47,17 @@ pip install cellphonedb --use-feature=2020-resolver
 pip install markupsafe==2.0.1 --use-feature=2020-resolver
 ```
 
-7. Run CellPhoneDB
+***
+##### Run CellPhoneDB
+
+8. Run statistical analysis
 
 ```
-cellphonedb method statistical_analysis /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/log_norm_data_sub.txt
+cellphonedb method statistical_analysis --subsampling --subsampling-log false --counts-data gene_name /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/log_norm_data_sub.txt
+```
+
+9. Plotting
+
+```
+cellphonedb 
 ```
