@@ -14,9 +14,6 @@ srun --pty -p interactive --mem=8g bash
 
 ```
 module load Python
-```
-
-```
 module load R
 ```
 4. Create a working directory
