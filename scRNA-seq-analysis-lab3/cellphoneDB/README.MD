@@ -38,11 +38,9 @@ source cpdb/bin/activate
 6. Install CellPhonedb
 
 ```
-pip install cellphonedb
-```
+pip install cellphonedb --use-feature=2020-resolver
 
-```
-pip install markupsafe==2.0.1
+pip install markupsafe==2.0.1 --use-feature=2020-resolver
 ```
 
 7. Run CellPhoneDB
