@@ -19,6 +19,8 @@ module load Python
 ```
 module load R
 ```
+4. Create a working directory
+
 
 4. Create a python virtual environment 
 
