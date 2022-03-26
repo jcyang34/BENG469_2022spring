@@ -73,4 +73,6 @@ Mac users: you can copy the plots to local and open them up.
 ```
 scp beng469_jy568@farnam.hpc.yale.edu:/gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq-lab3/out/*.pdf .
 ```
+Windows users: you can go to the same folder (```/gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq-lab3/out/```) and open the plots directly by double clicking inside the file navigator of MobaXterm
+
 
