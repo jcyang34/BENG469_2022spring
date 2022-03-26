@@ -59,5 +59,10 @@ cellphonedb method statistical_analysis --subsampling --subsampling-log false --
 9. Plotting
 
 ```
-cellphonedb 
+cellphonedb plot dot_plot --rows /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/rows.txt
+```
+
+```
+cellphonedb plot heatmap_plot /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt
+```
 ```
