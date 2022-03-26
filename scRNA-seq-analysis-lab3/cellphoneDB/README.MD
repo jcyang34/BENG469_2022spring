@@ -65,4 +65,12 @@ cellphonedb plot dot_plot --rows /gpfs/ysm/project/beng469/beng469_jy568/scRNA-s
 ```
 cellphonedb plot heatmap_plot /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt
 ```
+
+10. Visualize the results
+
+Mac users: you can copy the plots to local and open them up.
+
 ```
+scp beng469_jy568@farnam.hpc.yale.edu:/gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq-lab3/out/*.pdf .
+```
+
