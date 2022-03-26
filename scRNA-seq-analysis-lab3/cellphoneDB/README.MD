@@ -2,7 +2,11 @@
 
 ***
 
-1. Login to HPC via ssh
+1. Login to HPC via ssh (note: change the account id to your own)
+
+```
+ssh beng469_jy568@farnam.hpc.yale.edu
+```
 
 2. Allocate the resource
 
