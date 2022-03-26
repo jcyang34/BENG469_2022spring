@@ -25,6 +25,10 @@ module load R
 ```
 4. Create a working directory
 
+```
+cd project
+mkdir scRNA-seq-lab3 && cd scRNA-seq-lab3
+```
 
 4. Create a python virtual environment 
 
