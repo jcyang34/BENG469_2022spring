@@ -53,3 +53,7 @@ pip install markupsafe==2.0.1
 ```
 
 7. Run CellPhoneDB
+
+```
+cellphonedb method statistical_analysis /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/log_norm_data_sub.txt
+```
