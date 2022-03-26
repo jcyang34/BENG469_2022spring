@@ -75,4 +75,4 @@ scp beng469_jy568@farnam.hpc.yale.edu:/gpfs/ysm/project/beng469/beng469_jy568/sc
 ```
 Windows users: you can go to the same folder (```/gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq-lab3/out/```) and open the plots directly by double clicking inside the file navigator of MobaXterm
 
-![plot](./imgs/moba_file.png)
+![plot](./imgs/moba_file.PNG)
