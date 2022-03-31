@@ -54,7 +54,7 @@ pip install markupsafe==2.0.1 --use-feature=2020-resolver
 
 ```
 cellphonedb method statistical_analysis \
---subsampling --subsampling-log false --counts-data gene_name \ 
+--subsampling --subsampling-log false --counts-data gene_name \
 /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/cell_annotations.txt \
 /gpfs/ysm/project/beng469/beng469_jy568/scRNA-seq3/cellphoneDB/data/expression_mat.txt
 ```
